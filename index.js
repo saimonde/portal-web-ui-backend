@@ -1,12 +1,17 @@
-
 const { HTTPResponseError } = require('./requests.js');
 const app = new (require('koa'))();
 const koaBody = require('koa-body')();
 const qs = require('querystring');
 const fetch = require('node-fetch');
-const URL = require('url').URL;
 const https = require('https');
 const util = require('util');
+
+//Include models
+const dfsps=require('./models/dfsps');
+const users=require('./models/users');
+
+//Inclue Routes 
+const dfspsRoutes = require('./routes/dfsps');
 
 // TODO:
 // - reject content types that are not application/json (this comes back to validation)
@@ -34,31 +39,11 @@ require('dotenv').config();
 // Create config from environment. The idea of putting this here is that all environment variables
 // are places into this config. That way, if necessary, it's easy for a reader to see all of the
 // required config in one place.
-const config = {
-    db: {
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        port: process.env.DB_PORT,
-        password: process.env.DB_PASSWORD,
-        database: 'central_ledger'
-    },
-    server: {
-        listenPort: process.env.LISTEN_PORT
-    },
-    settlementsEndpoint: process.env.SETTLEMENTS_ENDPOINT,
-    centralLedgerEndpoint: process.env.CENTRAL_LEDGER_ENDPOINT,
-    auth: {
-        bypass: process.env.BYPASS_AUTH === 'true',
-        loginEndpoint: (new URL(process.env.AUTH_SERVICE, `${process.env.AUTH_SERVER}:${process.env.AUTH_SERVER_PORT}`)).href,
-        validateEndpoint: (new URL(process.env.VALIDATE_SERVICE, `${process.env.AUTH_SERVER}:${process.env.AUTH_SERVER_PORT}`)).href,
-        key: process.env.AUTH_SERVER_CLIENTKEY,
-        secret: process.env.AUTH_SERVER_CLIENTSECRET
-    },
-    corsReflectOrigin: process.env.CORS_ACCESS_CONTROL_REFLECT_ORIGIN === 'true'
-};
+const config =require('./config/global');
+
 
 // Set up the db
-const db = new (require('./db'))(config.db);
+const db = new (require('./config/db'))(config.db);
 
 // Simple logging function. Should replace this with structured logging.
 const log = (...args) => {
@@ -203,8 +188,16 @@ router.post('/dummypost', async (ctx, next) => {
 });
 
 router.get('/dfsps', async (ctx, next) => {
-    const dfsps = await db.getDfsps();
-    ctx.response.body = dfsps;
+    const _dfsps = await dfsps.getDfsps();
+    ctx.response.body = _dfsps;
+    ctx.response.status = 200;
+    await next();
+});
+
+
+router.get('/users', async (ctx, next) => {
+    const _users = await users.getUsers();
+    ctx.response.body = _users;
     ctx.response.status = 200;
     await next();
 });
