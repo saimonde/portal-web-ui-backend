@@ -1,12 +1,15 @@
+const config=require('./config/global');
+
+// Return 500 for any unhandled errors
 // Log all requests
-var logs=async (ctx, next) => {
-    log(`${ctx.request.method} ${ctx.request.path}${ctx.request.search}`);
+module.exports = async (ctx, next) => {
+    config.log(`${ctx.request.method} ${ctx.request.path}${ctx.request.search}`);
     await next();
 }
 
 // Nasty CORS response, should really be per-route
 // TODO: tidy/fix
-var resp=async (ctx, next) => {
+module.exports = async (ctx, next) => {
     if (ctx.request.method === 'OPTIONS') {
         ctx.response.set({
             'Access-Control-Allow-Methods': 'GET,PUT,POST',
@@ -22,20 +25,23 @@ var resp=async (ctx, next) => {
     }
 }
 
-var auth=async (ctx, next) => {
+
+// Authorise all requests except login
+// TODO: authorise before handling CORS?
+module.exports = async (ctx, next) => {
     if (ctx.request.path === '/login' && ctx.request.method.toLowerCase() === 'post') {
-        log('bypassing validation on login request');
+        config.log('bypassing validation on login request');
         return await next();
     }
     if (config.auth.bypass) {
-        log('request validation bypassed');
+        config.log('request validation bypassed');
         return await next();
     }
 
-    log('Cookie:', ctx.request.get('Cookie'));
+    config.log('Cookie:', ctx.request.get('Cookie'));
     const token = ctx.request.get('Cookie').split('=').splice(1).join('');
 
-    log('validating request, token:', token);
+    config.log('validating request, token:', token);
     const opts = {
         method: 'POST',
         headers: {
@@ -57,9 +63,3 @@ var auth=async (ctx, next) => {
     ctx.response.status = isActive ? 200 : 404;
     await next();
 }
-
- module.exports={
-    logs,
-    resp,
-    auth
- }

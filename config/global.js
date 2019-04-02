@@ -3,12 +3,16 @@ const URL = require('url').URL;
 // Load .env file into process.env if it exists. This is convenient for running locally.
 require('dotenv').config();
 
-
+// Simple logging function. Should replace this with structured logging.
+function log(...args){
+    console.log(`[${(new Date()).toISOString()}]`, ...args);
+};
 
 // Create config from environment. The idea of putting this here is that all environment variables
 // are places into this config. That way, if necessary, it's easy for a reader to see all of the
 // required config in one place.
 module.exports = {
+    log,
     db: {
         host: process.env.DB_HOST,
         user: process.env.DB_USER,
@@ -30,4 +34,5 @@ module.exports = {
     },
     corsReflectOrigin: process.env.CORS_ACCESS_CONTROL_REFLECT_ORIGIN === 'true'
 };
+
 

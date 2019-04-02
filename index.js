@@ -1,17 +1,16 @@
 const { HTTPResponseError } = require('./requests.js');
 const app = new (require('koa'))();
 const koaBody = require('koa-body')();
-const qs = require('querystring');
-const fetch = require('node-fetch');
 const https = require('https');
-const util = require('util');
 
-//Include models
-const dfsps=require('./models/dfsps');
-const users=require('./models/users');
+//Include middleware
+const middleware = require('./middleware');
 
-//Inclue Routes 
-const dfspsRoutes = require('./routes/dfsps');
+//Include routes
+const health=require('./routes/health');
+const authenticate=require('./routes/authenticate');
+const dfspsRoutes=require('./routes/dfsps');
+const usersRoutes=require('./routes/users');
 
 // TODO:
 // - reject content types that are not application/json (this comes back to validation)
@@ -41,25 +40,16 @@ require('dotenv').config();
 // required config in one place.
 const config =require('./config/global');
 
-
-// Set up the db
-const db = new (require('./config/db'))(config.db);
-
-// Simple logging function. Should replace this with structured logging.
-const log = (...args) => {
-    console.log(`[${(new Date()).toISOString()}]`, ...args);
-};
-
 // Log development/production status
-log('Running in ', process.env.NODE_ENV);
+config.log('Running in ', process.env.NODE_ENV);
 
 // Warnings for certain environment var settings
 if (config.corsReflectOrigin) {
-    log('WARNING: NODE_ENV = \'production\' and CORS origin being reflected in Access-Control-Allow-Origin header. ' +
+    config.log('WARNING: NODE_ENV = \'production\' and CORS origin being reflected in Access-Control-Allow-Origin header. ' +
         'Changing CORS_ACCESS_CONTROL_REFLECT_ORIGIN to false is important for preventing CSRF.');
 }
 if (config.auth.bypass) {
-    log('WARNING: auth bypass enabled- all login requests will be approved');
+    config.log('WARNING: auth bypass enabled- all login requests will be approved');
 }
 
 // Create an https agent for use with self-signed certificates
@@ -71,79 +61,7 @@ const selfSignedAgent = new https.Agent({ rejectUnauthorized: false });
 // Pre-route-handler middleware
 ///////////////////////////////////////////////////////////////////////////////
 
-// Return 500 for any unhandled errors
-app.use(async (ctx, next) => {
-    try {
-        await next();
-    } catch (err) {
-        log('Error', util.inspect(err, { depth: 10 }));
-        ctx.response.status = 500;
-        ctx.response.body = { msg: 'Unhandled Internal Error' };
-    }
-    log(`${ctx.request.method} ${ctx.request.path} | ${ctx.response.status}`);
-});
-
-// Log all requests
-app.use(async (ctx, next) => {
-    log(`${ctx.request.method} ${ctx.request.path}${ctx.request.search}`);
-    await next();
-});
-
-// Nasty CORS response, should really be per-route
-// TODO: tidy/fix
-app.use(async (ctx, next) => {
-    if (ctx.request.method === 'OPTIONS') {
-        ctx.response.set({
-            'Access-Control-Allow-Methods': 'GET,PUT,POST',
-            'Access-Control-Allow-Headers': 'content-type,accept'
-        });
-        if (config.corsReflectOrigin) {
-            ctx.response.set('Access-Control-Allow-Origin', ctx.request.headers['origin']);
-        }
-        ctx.response.status = 200;
-    }
-    else {
-        await next();
-    }
-});
-
-// Authorise all requests except login
-// TODO: authorise before handling CORS?
-app.use(async (ctx, next) => {
-    if (ctx.request.path === '/login' && ctx.request.method.toLowerCase() === 'post') {
-        log('bypassing validation on login request');
-        return await next();
-    }
-    if (config.auth.bypass) {
-        log('request validation bypassed');
-        return await next();
-    }
-
-    log('Cookie:', ctx.request.get('Cookie'));
-    const token = ctx.request.get('Cookie').split('=').splice(1).join('');
-
-    log('validating request, token:', token);
-    const opts = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `token=${token}`,
-        agent: selfSignedAgent
-    };
-
-    const validToken = await fetch(config.auth.validateEndpoint, opts).then(res => res.json());
-    let isValid = validToken['active'] === 'true';
-
-    if (!isValid) {
-        ctx.response.status = 401; // TODO: 403?
-        return;
-    }
-
-    ctx.response.body = { isValid };
-    ctx.response.status = isActive ? 200 : 404;
-    await next();
-});
+app.use(middleware);
 
 // Parse request bodies of certain content types (see koa-body docs for more)
 app.use(koaBody);
@@ -153,107 +71,10 @@ app.use(koaBody);
 // Route handling
 ///////////////////////////////////////////////////////////////////////////////
 
-let router = new (require('koa-router'))();
-
-// Health-check
-router.get('/', async (ctx, next) => {
-    try {
-        db.dummyQuery();
-        ctx.response.status = 204;
-    } catch (err) {
-        ctx.response.status = 500;
-    }
-    await next();
-});
-
-router.post('/dummypost', async (ctx, next) => {
-    try {
-        //call some async function here...
-        //e.g. let result = awaut func();
-        //
-        ctx.response.body = {
-            dummy: 'hello'
-        };
-        ctx.response.status = 200;
-    } catch (err) {
-        if (err instanceof HTTPResponseError && err.getData().resp.message === 'Error occured') {
-            ctx.response.status = 400;
-            ctx.response.body = err.getData();
-        }
-        else {
-            throw err;
-        }
-    }
-    await next();
-});
-
-router.get('/dfsps', async (ctx, next) => {
-    const _dfsps = await dfsps.getDfsps();
-    ctx.response.body = _dfsps;
-    ctx.response.status = 200;
-    await next();
-});
-
-
-router.get('/users', async (ctx, next) => {
-    const _users = await users.getUsers();
-    ctx.response.body = _users;
-    ctx.response.status = 200;
-    await next();
-});
-
-router.post('/login', async (ctx, next) => {
-    if (config.auth.bypass) {
-        log('authentication bypassed');
-        ctx.response.body = {
-            expiresIn: '3600'
-        };
-        ctx.response.set({
-            'Set-Cookie': 'token=bypassed; Secure; HttpOnly; SameSite=strict'
-        });
-        ctx.response.status = 200;
-        return await next();
-    }
-
-    const { username, password } = ctx.request.body;
-    const opts = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: qs.stringify({
-            client_id: config.auth.key,
-            client_secret: config.auth.secret,
-            grant_type: 'password',
-            username,
-            password
-        }),
-        agent: selfSignedAgent
-    };
-
-    const oauth2Token = await fetch(config.auth.loginEndpoint, opts).then(res => res.json());
-
-    if (oauth2Token === null) {
-        ctx.response.status = 401; // TODO: Or 403?
-        return await next();
-    }
-
-    ctx.response.body = {
-        expiresIn: oauth2Token['expires_in']
-    };
-    ctx.response.set({
-        'Set-Cookie': `token=${oauth2Token['access_token']}; Secure; HttpOnly; SameSite=strict`
-    });
-    ctx.response.status = 200;
-
-    await next();
-
-});
-
-// Route requests according to the routes above
-app.use(router.routes());
-app.use(router.allowedMethods());
-
+app.use(health);
+app.use(dfspsRoutes);
+app.use(usersRoutes);
+app.use(authenticate);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Post-route-handler processing
@@ -278,6 +99,6 @@ if (process.env.ALLOW_ALL_ORIGINS === 'true') {
 // Start app
 ///////////////////////////////////////////////////////////////////////////////
 
-log('Config:', config);
-log(`Listening on port ${config.server.listenPort}`);
+config.log('Config:', config);
+config.log(`Listening on port ${config.server.listenPort}`);
 app.listen(config.server.listenPort);

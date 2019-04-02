@@ -1,4 +1,7 @@
-let router = new (require('koa-router'))();
+const router = new (require('koa-router'))();
+
+//Include models
+const users=require('../models/users');
 
 router.get('/users', async (ctx, next) => {
     const _users = await users.getUsers();
@@ -7,4 +10,5 @@ router.get('/users', async (ctx, next) => {
     await next();
 });
 
-module.exports= router;
+module.exports = router.routes();
+                        //.allowedMethods();
