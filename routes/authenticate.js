@@ -1,8 +1,17 @@
 const router = new (require('koa-router'))();
 
+// Create config from environment. The idea of putting this here is that all environment variables
+// are places into this config. That way, if necessary, it's easy for a reader to see all of the
+// required config in one place.
+const config = require("../config/global")
+
+// Db connection
+const db = new (require('../config/db'))(config.db);
+
+
 router.post('/login', async (ctx, next) => {
     if (config.auth.bypass) {
-        log('authentication bypassed');
+        config.log('authentication bypassed');
         ctx.response.body = {
             expiresIn: '3600'
         };
@@ -49,4 +58,4 @@ router.post('/login', async (ctx, next) => {
 });
 
 module.exports=router.routes();
-                   // .allowedMethods();
+//.allowedMethods();
