@@ -2,6 +2,7 @@ const { HTTPResponseError } = require('./requests.js');
 const app = new (require('koa'))();
 const koaBody = require('koa-body')();
 const https = require('https');
+const cors = require('@koa/cors');
 
 //Include middleware
 const middleware = require('./middleware');
@@ -70,7 +71,7 @@ app.use(koaBody);
 ///////////////////////////////////////////////////////////////////////////////
 // Route handling
 ///////////////////////////////////////////////////////////////////////////////
-
+app.use(cors());
 app.use(health);
 app.use(dfspsRoutes);
 app.use(usersRoutes);
@@ -85,6 +86,7 @@ app.use(authenticate);
 // serves the UI and all non-root requests serve the API.
 if (process.env.ALLOW_ALL_ORIGINS === 'true') {
     app.use(async (ctx, next) => {
+       // console.log(ctx.request.headers['origin']);
         if (undefined !== ctx.request.headers['origin']) {
             ctx.response.set({
                 'Access-Control-Allow-Origin': ctx.request.headers['origin']
