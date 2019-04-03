@@ -1,7 +1,6 @@
 const { HTTPResponseError } = require('./requests.js');
 const app = new (require('koa'))();
 const koaBody = require('koa-body')();
-const https = require('https');
 const cors = require('@koa/cors');
 
 //Include middleware
@@ -15,7 +14,6 @@ const usersRoutes=require('./routes/users');
 
 // TODO:
 // - reject content types that are not application/json (this comes back to validation)
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Utilities
@@ -52,11 +50,6 @@ if (config.corsReflectOrigin) {
 if (config.auth.bypass) {
     config.log('WARNING: auth bypass enabled- all login requests will be approved');
 }
-
-// Create an https agent for use with self-signed certificates
-// TODO: do we need this? It's used when contacting wso2. Does wso2 have a self-signed cert?
-const selfSignedAgent = new https.Agent({ rejectUnauthorized: false });
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Pre-route-handler middleware

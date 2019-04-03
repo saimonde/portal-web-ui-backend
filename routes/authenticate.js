@@ -1,4 +1,7 @@
 const router = new (require('koa-router'))();
+const qs = require('querystring');
+const https = require('https');
+const fetch = require('node-fetch');
 
 // Create config from environment. The idea of putting this here is that all environment variables
 // are places into this config. That way, if necessary, it's easy for a reader to see all of the
@@ -8,6 +11,9 @@ const config = require("../config/global")
 // Db connection
 const db = new (require('../config/db'))(config.db);
 
+// Create an https agent for use with self-signed certificates
+// TODO: do we need this? It's used when contacting wso2. Does wso2 have a self-signed cert?
+const selfSignedAgent = new https.Agent({ rejectUnauthorized: false });
 
 router.post('/login', async (ctx, next) => {
     if (config.auth.bypass) {
