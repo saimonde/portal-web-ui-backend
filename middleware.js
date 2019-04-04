@@ -1,4 +1,10 @@
 const config=require('./config/global');
+const https = require('https');
+const fetch = require('node-fetch');
+
+// Create an https agent for use with self-signed certificates
+// TODO: do we need this? It's used when contacting wso2. Does wso2 have a self-signed cert?
+const selfSignedAgent = new https.Agent({ rejectUnauthorized: false });
 
 // Return 500 for any unhandled errors
 // Log all requests

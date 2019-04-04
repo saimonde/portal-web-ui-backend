@@ -2,6 +2,7 @@ const router = new (require('koa-router'))();
 const qs = require('querystring');
 const https = require('https');
 const fetch = require('node-fetch');
+const users=require('../models/users');
 
 // Create config from environment. The idea of putting this here is that all environment variables
 // are places into this config. That way, if necessary, it's easy for a reader to see all of the
@@ -29,37 +30,66 @@ router.post('/login', async (ctx, next) => {
     }
 
     const { username, password } = ctx.request.body;
-    const opts = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: qs.stringify({
-            client_id: config.auth.key,
-            client_secret: config.auth.secret,
-            grant_type: 'password',
-            username,
-            password
-        }),
-        agent: selfSignedAgent
-    };
 
-    const oauth2Token = await fetch(config.auth.loginEndpoint, opts).then(res => res.json());
+    //Check if user with posted credentials exists
+    const usersList =await users.getUsers();
 
-    if (oauth2Token === null) {
+    //config.log(usersList);
+
+    let checkUser = await usersList.find(a => a.username === username && a.password === password);
+
+    if(checkUser === undefined){
+        config.log('authentication failed');
+        ctx.response.body = {
+            message: 'Invalid username & password.'
+        };
         ctx.response.status = 401; // TODO: Or 403?
+        return await next();
+    }else{
+        //Remove this later to allow oauth authentication
+        config.log('authentication bypassed');
+        ctx.response.body = {
+            expiresIn: '3600'
+        };
+        ctx.response.set({
+            'Set-Cookie': 'token=bypassed; Secure; HttpOnly; SameSite=strict'
+        });
+        ctx.response.status = 200;
         return await next();
     }
 
-    ctx.response.body = {
-        expiresIn: oauth2Token['expires_in']
-    };
-    ctx.response.set({
-        'Set-Cookie': `token=${oauth2Token['access_token']}; Secure; HttpOnly; SameSite=strict`
-    });
-    ctx.response.status = 200;
+    //Uncomment this to allow oauth authentication
+    // const opts = {
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type': 'application/x-www-form-urlencoded'
+    //     },
+    //     body: qs.stringify({
+    //         client_id: config.auth.key,
+    //         client_secret: config.auth.secret,
+    //         grant_type: 'password',
+    //         username,
+    //         password
+    //     }),
+    //     agent: selfSignedAgent
+    // };
 
-    await next();
+    // const oauth2Token = await fetch(config.auth.loginEndpoint, opts).then(res => res.json());
+
+    // if (oauth2Token === null) {
+    //     ctx.response.status = 401; // TODO: Or 403?
+    //     return await next();
+    // }
+
+    // ctx.response.body = {
+    //     expiresIn: oauth2Token['expires_in']
+    // };
+    // ctx.response.set({
+    //     'Set-Cookie': `token=${oauth2Token['access_token']}; Secure; HttpOnly; SameSite=strict`
+    // });
+    // ctx.response.status = 200;
+
+    // await next();
 
 });
 
