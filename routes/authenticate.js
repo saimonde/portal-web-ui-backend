@@ -32,11 +32,7 @@ router.post('/login', async (ctx, next) => {
     const { username, password } = ctx.request.body;
 
     //Check if user with posted credentials exists
-    const usersList =await users.getUsers();
-
-    //config.log(usersList);
-
-    let checkUser = await usersList.find(a => a.username === username && a.password === password);
+    let checkUser = await users.checkUserCredentials(username, password);
 
     if(checkUser === undefined){
         config.log('authentication failed');
