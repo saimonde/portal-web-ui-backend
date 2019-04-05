@@ -18,9 +18,9 @@ async function getUsers() {
             active:"YES"
         },
         {
-            "username":"slosindilo",
-            "password":"12345",
-            "active":"YES"
+            username:"slosindilo",
+            password:"12345",
+            active:"YES"
         }
     ];
     return users;
@@ -28,13 +28,9 @@ async function getUsers() {
 
 //Check if user with posted credentials exists
 async function checkUserCredentials(username,password){
-
     let usersList = await this.getUsers();
-
     let user = await usersList.find(a => a.username === username && a.password === password);
-
     return user;
-
 }
 
 
