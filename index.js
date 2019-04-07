@@ -96,4 +96,6 @@ if (process.env.ALLOW_ALL_ORIGINS === 'true') {
 
 config.log('Config:', config);
 config.log(`Listening on port ${config.server.listenPort}`);
-app.listen(config.server.listenPort);
+const server=app.listen(config.server.listenPort);
+
+module.exports=server;

@@ -3,7 +3,6 @@
 const fetch = require('node-fetch');
 const util = require('util');
 
-
 const respErrSym = Symbol('ResponseErrorDataSym');
 
 class HTTPResponseError extends Error {

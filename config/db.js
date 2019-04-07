@@ -16,7 +16,7 @@ module.exports = class Database {
     }
     
     async dummyQuery() {
-        await this.connection.query('SELECT 1 + 1 AS result');
+        return await this.connection.query('SELECT 1 + 1 AS result');
     }
 };
 

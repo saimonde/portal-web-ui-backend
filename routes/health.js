@@ -6,6 +6,8 @@ const db = new (require('../config/db'))(config.db);
 // Health-check
 router.get('/', async (ctx, next) => {
     try {
+        // let dummyQuery=await db.dummyQuery();
+        // console.log(dummyQuery);
         db.dummyQuery();
         ctx.response.status = 204;
     } catch (err) {
