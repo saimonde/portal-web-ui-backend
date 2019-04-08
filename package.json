@@ -1,5 +1,5 @@
 {
-  "name": "portal-web-ui-backend-skeleton",
+  "name": "portal-web-ui-backend",
   "version": "0.0.1",
   "description": "A backend service to support admin portal web ui. Essentially a thin wrapper around SQL queries and API calls.",
   "main": "index.js",
@@ -15,7 +15,7 @@
     "type": "git",
     "url": ""
   },
-  "author": "Matt Kingston, ModusBox Inc.",
+  "author": "Aman Albogast,Bank of Tanzania.",
   "license": "UNLICENSED",
   "bugs": {
     "url": ""

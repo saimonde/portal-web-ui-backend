@@ -26,13 +26,15 @@ describe("routes: health", () => {
         expect(response.type).toEqual("application/json");
         expect(response.body.dummy).toEqual("hello");
       }catch(err){
-        if (err instanceof HTTPResponseError && err.getData().resp.message === 'Error occured') {
-            expect(response.status).toEqual(400);
-            expect(response.body).toEqual(err.getData());
-        }
-        else {
-            throw err;
-        }
+        expect(response.status).toEqual(400);
+        expect(response.body).toEqual(err.getData());
+        // if (err instanceof HTTPResponseError && err.getData().resp.message === 'Error occured') {
+        //     expect(response.status).toEqual(400);
+        //     expect(response.body).toEqual(err.getData());
+        // }
+        // else {
+        //     throw err;
+        // }
       }
       
   });

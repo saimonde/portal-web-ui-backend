@@ -9,14 +9,16 @@ const config = require("../../config/global")
     server.close();
   });
 
-  describe("routes: dfsps",async () => {
+  describe("routes: authentication",async () => {
     const expected ={
         expiresIn: '3600'
     };
-    const checkUser = await checkUserCredentials('amalbogast', '12345');
+    const user = await checkUserCredentials('amalbogast', '12345');
+    const nonUser = await checkUserCredentials('amalbogast1244', '12345d');
 
     test("checkuser should be defined", async () => {
-        expect(checkUser).toBeDefined();
+        expect(user).toBeDefined();
+        expect(nonUser).toBeDefined();
     });
 
     test("Oauth2 is bypassed", async () => {
@@ -30,19 +32,19 @@ const config = require("../../config/global")
     
     test("User exists", async () => {
         const response = await request(server).post("/login");
-        if(checkUser === undefined){
-            expect(response.status).toEqual(401);
+        if(user !== undefined){
+            expect(response.status).toEqual(200);
             expect(response.type).toBe('application/json');
-            expect(response.body.message).toEqual("Invalid username & password.");
+            expect(response.body).toEqual(expected);
         }
     });
 
     test("User does not exist", async () => {
         const response = await request(server).post("/login");
-        if(checkUser !== undefined){
-            expect(response.status).toEqual(200);
+        if(nonUser === undefined){
+            expect(response.status).toEqual(401);
             expect(response.type).toBe('application/json');
-            expect(response.body).toEqual(expected);
+            expect(response.body.message).toEqual("Invalid username & password.");
         }
     });
 
