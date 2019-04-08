@@ -22,18 +22,13 @@ const users=[
     }
 ];
 
-async function getUsers(){
+module.exports.getUsers=async ()=>{
     let userList=await users;
     return userList;
 }
 //Check if user with posted credentials exists
-async function checkUserCredentials(username,password){
+module.exports.checkUserCredentials=async (username,password)=>{
     let usersList = await this.getUsers();
     let user = await usersList.find(a => a.username === username && a.password === password);
     return user;
-}
-
-module.exports={
-    getUsers,
-    checkUserCredentials
 }

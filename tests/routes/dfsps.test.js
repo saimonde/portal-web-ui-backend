@@ -1,4 +1,4 @@
-const dfspsModel=require('../../models/dfsps');
+const {getDfsps}=require('../../models/dfsps');
 const server=require('../../index');
 // require supertest
 const request = require("supertest");
@@ -9,8 +9,7 @@ const request = require("supertest");
   });
 
 describe("routes: dfsps",() => {
-    const expected = dfspsModel.getDfsps();
-
+    const expected = getDfsps();
     test("should respond as expected", async () => {
         const response = await request(server).get("/dfsps");
         try{
@@ -21,5 +20,4 @@ describe("routes: dfsps",() => {
             expect(response.status).toEqual(500);
         }
     });
-
 });

@@ -3,9 +3,9 @@ const server=require('../../index');
 const request = require("supertest");
 
 // close the server after each test
-// afterEach(() => {
-//     server.close();
-//   });
+afterEach(() => {
+    server.close();
+  });
 
 describe("routes: health", () => {
 

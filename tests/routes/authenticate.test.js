@@ -1,4 +1,4 @@
-const usersModel=require('../../models/users');
+const {checkUserCredentials}=require('../../models/users');
 const server=require('../../index');
 // require supertest
 const request = require("supertest");
@@ -13,13 +13,13 @@ const config = require("../../config/global")
     const expected ={
         expiresIn: '3600'
     };
-    const checkUser = await usersModel.checkUserCredentials('amalbogast', '12345');
+    const checkUser = await checkUserCredentials('amalbogast', '12345');
 
     test("checkuser should be defined", async () => {
         expect(checkUser).toBeDefined();
     });
 
-    test("if oauth2 is bypassed", async () => {
+    test("Oauth2 is bypassed", async () => {
         const response = await request(server).post("/login");
         if (config.auth.bypass) {
             expect(response.status).toEqual(200);
@@ -28,7 +28,7 @@ const config = require("../../config/global")
         }
     });
     
-    test("user exists", async () => {
+    test("User exists", async () => {
         const response = await request(server).post("/login");
         if(checkUser === undefined){
             expect(response.status).toEqual(401);
@@ -37,7 +37,7 @@ const config = require("../../config/global")
         }
     });
 
-    test("if user does not exist", async () => {
+    test("User does not exist", async () => {
         const response = await request(server).post("/login");
         if(checkUser !== undefined){
             expect(response.status).toEqual(200);

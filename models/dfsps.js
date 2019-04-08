@@ -6,14 +6,10 @@ const config = require("../config/global")
 // Db connection
 const db = new (require('../config/db'))(config.db);
 
-async function getDfsps() {
+module.exports.getDfsps=async function() {
     const [dfsps,] = await db.connection.query(
         'SELECT p.participantId AS id, p.name FROM participant p'
     );
     return dfsps;
-}
-
-module.exports={
-    getDfsps
 }
 

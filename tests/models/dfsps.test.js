@@ -1,9 +1,8 @@
-const dfspsModel=require('../../models/dfsps');
+const {getDfsps}=require('../../models/dfsps');
 
 describe("Models: dfsps", () => {
-    const expected=dfspsModel.getDfsps();
-
+    const expected=getDfsps();
     test('Check dsfps models',async ()=>{
-        expect(dfspsModel.getDfsps()).toEqual(expected);
+        expect(getDfsps()).toEqual(expected);
     })
 })
