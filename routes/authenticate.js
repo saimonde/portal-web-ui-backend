@@ -17,17 +17,17 @@ const db = new (require('../config/db'))(config.db);
 const selfSignedAgent = new https.Agent({ rejectUnauthorized: false });
 
 router.post('/login', async (ctx, next) => {
-    if (config.auth.bypass) {
-        config.log('authentication bypassed');
-        ctx.response.body = {
-            expiresIn: '3600'
-        };
-        ctx.response.set({
-            'Set-Cookie': 'token=bypassed; Secure; HttpOnly; SameSite=strict'
-        });
-        ctx.response.status = 200;
-        return await next();
-    }
+    // if (config.auth.bypass) {
+    //     config.log('authentication bypassed');
+    //     ctx.response.body = {
+    //         expiresIn: '3600'
+    //     };
+    //     ctx.response.set({
+    //         'Set-Cookie': 'token=bypassed; Secure; HttpOnly; SameSite=strict'
+    //     });
+    //     ctx.response.status = 200;
+    //     return await next();
+    // }
 
     const { username, password } = ctx.request.body;
 
@@ -35,24 +35,24 @@ router.post('/login', async (ctx, next) => {
     let checkUser = await checkUserCredentials(username, password);
 
     if(checkUser === undefined){
-        config.log('authentication failed');
+        config.log('*******user does not exist');
         ctx.response.body = {
             message: 'Invalid username & password.'
         };
         ctx.response.status = 401; // TODO: Or 403?
         return await next();
-    }else{
-        //Remove this later to allow oauth authentication
-        config.log('authentication bypassed');
-        ctx.response.body = {
-            expiresIn: '3600'
-        };
-        ctx.response.set({
-            'Set-Cookie': 'token=bypassed; Secure; HttpOnly; SameSite=strict'
-        });
-        ctx.response.status = 200;
-        return await next();
     }
+    
+    //Remove this later to allow oauth authentication
+    ctx.response.body = {
+        expiresIn: '3600'
+    };
+    ctx.response.set({
+        'Set-Cookie': 'token=bypassed; Secure; HttpOnly; SameSite=strict'
+    });
+    ctx.response.status = 200;
+    return await next();
+    
 
     //Uncomment this to allow oauth authentication
     // const opts = {
