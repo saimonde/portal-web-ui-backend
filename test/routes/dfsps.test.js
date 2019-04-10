@@ -10,31 +10,44 @@ chai.use(chaiHttp);
 
 describe("routes: dfsps",() => {
     
-    it("Respone: dfsps list", async ()=> {
+    it("Try{}: respond with dfsps list.", async ()=> {
         const expected = await getDfsps();
         chai
         .request(server)
         .get('/dfsps')
-        .then((res)=>{
-            //expect(res).to.have.status(200);
-            res.body.should.be.a('object');
+        .end((err, res) => {
+            should.not.exist(err);
+            res.body.should.be.an('array');
             res.status.should.eql(200);
             res.type.should.eql("application/json");
-            expect(res.body).to.equal(expected);
-         })
-         .catch((err,res)=> {
-            res.status.should.eql(500);
-         });
-        // .end((err, res) => {
-        //   should.not.exist(err);
-        //     try{
-            // res.body.should.be.a('object');
-            // res.status.should.eql(200);
-            // res.type.should.eql("application/json");
-            // expect(res.body).to.equal(expected);
-        //     }catch(e){
-        //         res.status.should.eql(500);
-        //     }
-        // });
+            expect(res.body).to.deep.equal(expected);
+        });
+        // .then((res)=>{
+        //     //expect(res).to.have.status(200);
+        //     res.body.should.be.a('object');
+        //     res.status.should.eql(200);
+        //     res.type.should.eql("application/json");
+        //     expect(res.body).to.equal(expected);
+        //  })
+        //  .catch((err)=> {
+        //     res.status.should.eql(500);
+        //  })
+        
     });
+
+
+    //Uncomment this after i have gained knowledge how to test try/catch blocks
+    // it("Catch(e){}: on failure to get dfsps list ", async ()=> {
+    //     const expected = await getDfsps();
+    //     chai
+    //     .request(server)
+    //     .get('/dfsps')
+    //     .end((err, res) => {
+    //       should.not.exist(err);
+    //       res.status.should.eql(500);
+    //     });
+    //     done();
+    // });
+
+
 });

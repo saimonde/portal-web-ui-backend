@@ -26,15 +26,13 @@ router.post('/dummypost', async (ctx, next) => {
         };
         ctx.response.status = 200;
     } catch (err) {
-        ctx.response.status = 400;
-        ctx.response.body = err.getData();
-        // if (err instanceof HTTPResponseError && err.getData().resp.message === 'Error occured') {
-        //     ctx.response.status = 400;
-        //     ctx.response.body = err.getData();
-        // }
-        // else {
-        //     throw err;
-        // }
+        if (err instanceof HTTPResponseError && err.getData().resp.message === 'Error occured') {
+            ctx.response.status = 400;
+            ctx.response.body = err.getData();
+        }
+        else {
+            throw err;
+        }
     }
     await next();
 });

@@ -35,37 +35,23 @@ describe("routes: health", () => {
     chai
         .request(server)
         .post('/dummypost')
-        .then((res)=>{
-            res.status.should.eql(200);
-            expect(res.body).to.equal("hello");
-            res.type.should.eql("application/json");
-          })
-        .catch((err,res)=>{
-          res.status.should.eql(400);
-          expect(res.body).to.equal(err.getData());
+        .end((err, res) => {
+          should.not.exist(err);
+          res.status.should.eql(200);
+          res.type.should.eql("application/json");  
+          expect(res.body.dummy).to.equal("hello");
         });
-       done();
-
-        // .end((err, res) => {
-        //   should.not.exist(err);
-        //     try{
-        //         res.status.should.eql(200);
-        //         expect(res.body).to.equal("hello");
-        //         res.type.should.eql("application/json");
-        //     }catch(ex){
-        //         res.status.should.eql(400);
-        //         expect(response.body).to.equal(ex.getData());
-        //         // if (ex instanceof HTTPResponseError && ex.getData().resp.message === 'Error occured') {
-        //         //     res.status.should.eql(400);
-        //         //     expect(res.body).to.equal("hello");
-        //         //     expect(response.body).to.equal(ex.getData());
-        //         // }
-        //         // else {
-        //         //     throw err;
-        //         // }
-        //     }
-        //   done();
-        // });
+        done();
+        //   .then((res)=>{
+      //       res.status.should.eql(200);
+      //       expect(res.body).to.equal("hello");
+      //       res.type.should.eql("application/json");
+      //     })
+      //   .catch((err,res)=>{
+      //     res.status.should.eql(400);
+      //     expect(res.body).to.equal(err.getData());
+      //   });
+      //  done();
   });
 
  
