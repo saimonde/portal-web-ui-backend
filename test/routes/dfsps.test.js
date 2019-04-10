@@ -29,16 +29,17 @@ describe("routes: dfsps",() => {
         //     res.type.should.eql("application/json");
         //     expect(res.body).to.equal(expected);
         //  })
-        //  .catch((err)=> {
+        //  .catch((err,res)=> {
         //     res.status.should.eql(500);
-        //  })
+        //  });
+        
         
     });
 
 
     //Uncomment this after i have gained knowledge how to test try/catch blocks
-    // it("Catch(e){}: on failure to get dfsps list ", async ()=> {
-    //     const expected = await getDfsps();
+    //this will fail unless we catch error 
+    // it("Catch(e){}: on failure to get dfsps list ", async done=> {
     //     chai
     //     .request(server)
     //     .get('/dfsps')

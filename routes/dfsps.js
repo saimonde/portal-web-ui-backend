@@ -12,6 +12,7 @@ router.get('/dfsps', async (ctx, next) => {
         ctx.response.body = _dfsps;
         ctx.response.status = 200;
     }catch(err){
+        console.log("***********caught errors")
         ctx.response.status = 500;
     }
     await next();

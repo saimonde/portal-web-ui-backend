@@ -9,27 +9,35 @@ chai.use(chaiHttp);
 
 describe("routes: health", () => {
 
-  it("should respond as expected", async done => {
+  it("on try{}:should respond as expected", async done => {
     chai
       .request(server)
       .get('/')
-      .then((res)=>{
-          expect(res).to.have.status(204);
-      })
-      .catch((err,res)=>{
-          res.status.should.eql(500);
-       });
-       done();
-        // .end((err, res) => {
-        //   should.not.exist(err);
-        //     try{
-        //         res.status.should.eql(204);
-        //     }catch(e){
-        //         res.status.should.eql(500);
-        //     }
-        //   done();
-        // });
+      .end((err, res) => {
+        should.not.exist(err);
+        res.status.should.eql(204);
+      });
+      done();
+      // .then((res)=>{
+      //     expect(res).to.have.status(204);
+      // })
+      // .catch((err,res)=>{
+      //     res.status.should.eql(500);
+      //  });
+      //  done();
   });
+
+  // it("on catch{}:should respond as expected", async done => {
+  //   chai
+  //     .request(server)
+  //     .get('/')
+  //     .end((err, res) => {
+  //       should.not.exist(err);
+  //       res.status.should.eql(500);
+  //     });
+  //     done();
+  // });
+
 
   it("test on dummy post",async done=>{
     chai
