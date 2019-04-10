@@ -14,7 +14,9 @@ chai.use(chaiHttp);
         expiresIn: '3600'
     };
     let credentials;
+    //expect(credentials).to.not.be.undefined;
 
+    
     // it("check login,config.auth.bypass=TRUE", done => {
     //   credentials={
     //     username:'amalbogast',

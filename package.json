@@ -6,9 +6,10 @@
   "scripts": {
     "start": "node index.js",
     "test": "mocha --reporter list \"test/**/*.test.js\"",
+    "coverage": "istanbul cover _mocha -- -R spec test/**/*.js --timeout 10000",
+    "showcoverage": "open coverage/lcov-report/index.html",
     "lint": "eslint ."
   },
-
   "repository": {
     "type": "git",
     "url": ""
@@ -31,5 +32,11 @@
     "mysql2": "^1.6.5",
     "node-fetch": "^2.3.0",
     "supertest": "^4.0.2"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.2.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^6.1.2"
   }
 }
