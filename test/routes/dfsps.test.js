@@ -21,6 +21,9 @@ describe("routes: dfsps",() => {
             res.status.should.eql(200);
             res.type.should.eql("application/json");
             expect(res.body).to.deep.equal(expected);
+            res.body[0].should.include.keys(
+                'id', 'name'
+              );
         });
         // .then((res)=>{
         //     //expect(res).to.have.status(200);

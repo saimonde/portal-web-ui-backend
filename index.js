@@ -2,9 +2,11 @@ const { HTTPResponseError } = require('./requests.js');
 const app = new (require('koa'))();
 const koaBody = require('koa-body')();
 const cors = require('@koa/cors');
+const https = require('https');
+const fetch = require('node-fetch');
 
 //Include middleware
-const middleware = require('./middleware');
+// const middleware = require('./middleware');
 
 //Include routes
 const health=require('./routes/health');
@@ -54,8 +56,64 @@ if (config.auth.bypass) {
 ///////////////////////////////////////////////////////////////////////////////
 // Pre-route-handler middleware
 ///////////////////////////////////////////////////////////////////////////////
+const selfSignedAgent = new https.Agent({ rejectUnauthorized: false });
 
-app.use(middleware);
+app.use(async (ctx, next) => {
+    config.log(`${ctx.request.method} ${ctx.request.path}${ctx.request.search}`);
+    await next();
+});
+
+app.use(async (ctx, next) => {
+    if (ctx.request.method === 'OPTIONS') {
+        ctx.response.set({
+            'Access-Control-Allow-Methods': 'GET,PUT,POST',
+            'Access-Control-Allow-Headers': 'content-type,accept'
+        });
+        if (config.corsReflectOrigin) {
+            ctx.response.set('Access-Control-Allow-Origin', ctx.request.headers['origin']);
+        }
+        ctx.response.status = 200;
+    }
+    else {
+        await next();
+    }
+});
+
+app.use(async (ctx, next) => {
+    if (ctx.request.path === '/login' && ctx.request.method.toLowerCase() === 'post') {
+        config.log('bypassing validation on login request');
+        return await next();
+    }
+    if (config.auth.bypass) {
+        config.log('request validation bypassed');
+        return await next();
+    }
+
+    config.log('Cookie:', ctx.request.get('Cookie'));
+    const token = ctx.request.get('Cookie').split('=').splice(1).join('');
+
+    config.log('validating request, token:', token);
+    const opts = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `token=${token}`,
+        agent: selfSignedAgent
+    };
+
+    const validToken = await fetch(config.auth.validateEndpoint, opts).then(res => res.json());
+    let isValid = validToken['active'] === 'true';
+
+    if (!isValid) {
+        ctx.response.status = 401; // TODO: 403?
+        return;
+    }
+
+    ctx.response.body = { isValid };
+    ctx.response.status = isActive ? 200 : 404;
+    await next();
+});
 
 // Parse request bodies of certain content types (see koa-body docs for more)
 app.use(koaBody);
