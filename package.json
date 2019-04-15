@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "mocha --reporter list \"test/**/*.test.js\"",
-    "coverage": "istanbul cover _mocha -- -R spec test/**/*.js --timeout 10000",
+    "test": "mocha --reporter list \"test/**/*.test.js\" --timeout=3000",
+    "coverage": "istanbul cover _mocha -- -R test/**/*.js --timeout=3000",
     "showcoverage": "open coverage/lcov-report/index.html",
     "lint": "eslint ."
   },

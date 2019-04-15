@@ -17,17 +17,17 @@ const db = new (require('../config/db'))(config.db);
 const selfSignedAgent = new https.Agent({ rejectUnauthorized: false });
 
 router.post('/login', async (ctx, next) => {
-    if (config.auth.bypass) {
-        config.log('authentication bypassed');
-        ctx.response.body = {
-            expiresIn: '3600'
-        };
-        ctx.response.set({
-            'Set-Cookie': 'token=bypassed; Secure; HttpOnly; SameSite=strict'
-        });
-        ctx.response.status = 200;
-        return await next();
-    }
+    // if (config.auth.bypass) {
+    //     config.log('authentication bypassed');
+    //     ctx.response.body = {
+    //         expiresIn: '3600'
+    //     };
+    //     ctx.response.set({
+    //         'Set-Cookie': 'token=bypassed; Secure; HttpOnly; SameSite=strict'
+    //     });
+    //     ctx.response.status = 200;
+    //     return await next();
+    // }
 
     const { username, password } = ctx.request.body;
 
