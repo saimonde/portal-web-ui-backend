@@ -62,7 +62,6 @@ async function get(url, opts) {
             method: 'GET',
             headers: { 'content-type': 'application/json', 'accept': 'application/json' }
         };
-
         return await fetch(buildUrl(opts.endpoint, url), reqOpts).then(throwOrJson);
     } catch (e) {
         optLog(opts, util.format('Error attempting GET. URL:', url, 'Opts:', opts, 'Error:', e));
