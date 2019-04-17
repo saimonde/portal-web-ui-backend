@@ -1,11 +1,14 @@
 const router = new (require('koa-router'))();
 
 //Include models
-const users=require('../models/users');
+const {getAllUsers}=require('../models/users');
 
 router.get('/users', async (ctx, next) => {
-    const _users = await users.getUsers();
-    ctx.response.body = _users;
+    const _users = await getAllUsers();
+    ctx.response.body = _users.map(u => {
+        const { password, ...userWithoutPassword } = u;
+        return userWithoutPassword;
+    });
     ctx.response.status = 200;
     await next();
 });

@@ -2,7 +2,9 @@ const router = new (require('koa-router'))();
 const qs = require('querystring');
 const https = require('https');
 const fetch = require('node-fetch');
-const {checkUserCredentials,userRoles}=require('../models/users');
+const {checkUserCredentials}=require('../models/users');
+const {userRoles,getAccessMenu}=require('../models/role');
+
 
 // Create config from environment. The idea of putting this here is that all environment variables
 // are places into this config. That way, if necessary, it's easy for a reader to see all of the
@@ -42,14 +44,19 @@ router.post('/login', async (ctx, next) => {
         ctx.response.status = 401; // TODO: Or 403?
         return await next();
     }
+    const userId=user.userId;
     //User active roles
-    let roles = await userRoles(user.userid);
+    let roles = await userRoles(userId);
+
+    //User active roles
+    let menu = await getAccessMenu(userId);
     
     //Remove this later to allow oauth authentication
     ctx.response.body = {
         expiresIn: '3600',
         user:user,
-        roles:roles
+        roles:roles,
+        accessMenu:menu
     };
     ctx.response.set({
         'Set-Cookie': 'token=bypassed; Secure; HttpOnly; SameSite=strict'
