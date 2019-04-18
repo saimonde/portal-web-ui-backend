@@ -8,7 +8,7 @@ const db = new (require('../config/db'))(config.db);
 
 module.exports.getAllUsers=async ()=>{
     let [userList]=await db.connection.query(
-        'SELECT u.* FROM user u'
+        'SELECT u.* FROM users u'
     );
     return userList;
 }

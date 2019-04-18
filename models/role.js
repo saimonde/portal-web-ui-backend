@@ -14,8 +14,8 @@ module.exports.getRoles=async ()=>{
 }
 
 module.exports.userRoles = async (id)=>{
-    let q='SELECT r.roleId,r.roleName FROM role r JOIN userRole ur';
-        q+=' ON r.roleId=ur.roleId JOIN user u ON ur.userId=u.userId';
+    let q='SELECT r.roleId,r.roleName FROM roles r JOIN user_role ur';
+        q+=' ON r.roleId=ur.roleId JOIN users u ON ur.userId=u.userId';
         q+=' WHERE ur.userId=?';
     let [roles]= await db.connection.query(q,id);
     let userRoles=[];
@@ -27,20 +27,20 @@ module.exports.userRoles = async (id)=>{
 
 module.exports.getAccessMenu = async (id)=>{
     
-    let q='SELECT v.menuItemId,v.label,v.link,v.menuId,v.MainMenu,';
-        q+='v.mainmenulink from v_user_roles_menu v where v.userId=?';
+    let q='SELECT v.taskId,v.taskName,v.childLink,v.childIcon,v.menuId,v.mainMenu,';
+        q+='v.mainMenulink,v.mainMenuIcon from v_user_roles_menu v where v.userId=?';
     let [result]= await db.connection.query(q,id);
 
     var menu_to_values = result.reduce((obj, item)=>{
-        obj[item.MainMenu] = obj[item.MainMenu] || [];
-        obj[item.MainMenu].push({label:item.label,link:item.link});
+        obj[item.mainMenu] = obj[item.mainMenu] || [];
+        obj[item.mainMenu].push({label:item.taskName,link:item.childLink,icon:item.childIcon});
         return obj;
     }, {});
 
     //console.log(menu_to_values);
     
     var menus = Object.keys(menu_to_values).map((key)=>{
-        return {memu: key,link:"#", subMenu: menu_to_values[key]};
+        return {memu: key,link:"#",icon:"#", subMenu: menu_to_values[key]};
     });
 
     return menus;
