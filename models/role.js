@@ -37,10 +37,9 @@ module.exports.getAccessMenu = async (id)=>{
         return obj;
     }, {});
 
-    //console.log(menu_to_values);
-    
     var menus = Object.keys(menu_to_values).map((key)=>{
-        return {memu: key,link:"#",icon:"#", subMenu: menu_to_values[key]};
+        let menu = result.find(i => i.mainMenu === key);
+        return {menu: key,link:menu.mainMenulink,icon:menu.mainMenuIcon, subMenu: menu_to_values[key]};
     });
 
     return menus;
