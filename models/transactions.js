@@ -12,17 +12,17 @@ module.exports.getTransactionsByDfsp=async(id)=> {
         TZS:{
             recieved:
                 {
-                    volume:70,
-                    value:1700
+                    volume:300,
+                    value:170000
                 },
             sent:
                 {
-                    volume:6,
+                    volume:130,
                     value:300000
                 },
             cancelled:
                 {
-                    volume:2,
+                    volume:60,
                     value:180000
             }
         }
