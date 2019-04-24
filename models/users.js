@@ -1,3 +1,4 @@
+const md5 = require('md5');
 // Create config from environment. The idea of putting this here is that all environment variables
 // are places into this config. That way, if necessary, it's easy for a reader to see all of the
 // required config in one place.
@@ -16,7 +17,7 @@ module.exports.getAllUsers=async ()=>{
 //Check if user with posted credentials exists
 module.exports.checkUserCredentials=async (username,password)=>{
     let userList = await this.getAllUsers();
-    let user = await userList.find(a => a.userName === username && a.password === password);
+    let user = await userList.find(a => a.userName === username && a.password === md5(password));
     (user !== undefined) ? { password,createdAt,createdBy,updatedAt,updatedBy,status, ...userWithCleanedInfo } = user:user;
     return userWithCleanedInfo;
 }
