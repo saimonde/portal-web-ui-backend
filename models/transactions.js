@@ -1,7 +1,5 @@
 const request=require('../requests');
 
-
-
 module.exports.getTransactionsByDfsp=async(id)=> {
     // let opts={
     //     endpoint:process.env.CENTRAL_LEDGER_ENDPOINT
