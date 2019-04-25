@@ -27,8 +27,13 @@ module.exports.userRoles = async (id)=>{
 
 module.exports.getAccessMenu = async (id)=>{
     
-    let q='SELECT v.taskId,v.taskName,v.childLink,v.childIcon,v.menuId,v.mainMenu,';
-        q+='v.mainMenulink,v.mainMenuIcon from v_user_roles_menu v where v.userId=? order by v.menuId=1 desc,v.menuId asc';
+    // let q='SELECT v.taskId,v.taskName,v.childLink,v.childIcon,v.menuId,v.mainMenu,';
+    //     q+='v.mainMenulink,v.mainMenuIcon from v_user_roles_menu v where v.userId=? order by v.menuId=1 desc,v.menuId asc';
+    
+    let q='SELECT t.taskId,t.taskName,t.link AS chilLink,t.icon AS childIcon,m.menuId,m.name AS mainMenu,m.link AS mainMenuLink,m.icon AS mainMenuIcon FROM tasks t'
+    q+=', menu m WHERE t.menuId IN(SELECT menuId FROM menu WHERE menuId IN(SELECT menuId FROM tasks WHERE taskId IN(SELECT taskId FROM role_task ';
+    q+='WHERE roleId IN(SELECT roleId FROM user_role WHERE userId=?)))) AND t.menuId = m.menuId';
+    
     let [result]= await db.connection.query(q,id);
 
     var menu_to_values = result.reduce((obj, item)=>{
