@@ -18,8 +18,7 @@ module.exports.getAllUsers=async ()=>{
 module.exports.checkUserCredentials=async (username,password)=>{
     let userList = await this.getAllUsers();
     let user = await userList.find(a => a.userName === username && a.password === md5(password));
-    (user !== undefined) ? { password,createdAt,createdBy,updatedAt,updatedBy,status, ...userWithCleanedInfo } = user:user;
-    return userWithCleanedInfo;
+    return (user !== undefined) ? { password,createdAt,createdBy,updatedAt,updatedBy,status, ...userWithCleanedInfo } = user:user;
 }
 
 module.exports.getUserById = async (id)=>{
