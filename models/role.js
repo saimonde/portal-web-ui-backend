@@ -8,7 +8,7 @@ const db = new (require('../config/db'))(config.db);
 
 module.exports.getRoles=async ()=>{
     let [roles]=await db.connection.query(
-        'SELECT r.* FROM role r'
+        'SELECT * FROM roles'
     );
     return roles;
 }
@@ -27,10 +27,7 @@ module.exports.userRoles = async (id)=>{
 
 module.exports.getAccessMenu = async (id)=>{
     
-    // let q='SELECT v.taskId,v.taskName,v.childLink,v.childIcon,v.menuId,v.mainMenu,';
-    //     q+='v.mainMenulink,v.mainMenuIcon from v_user_roles_menu v where v.userId=? order by v.menuId=1 desc,v.menuId asc';
-    
-    let q='SELECT t.taskId,t.taskName,t.link AS chilLink,t.icon AS childIcon,m.menuId,m.name AS mainMenu,m.link AS mainMenuLink,m.icon AS mainMenuIcon FROM tasks t'
+    let q='SELECT t.taskId,t.taskName,t.link AS childLink,t.icon AS childIcon,m.menuId,m.name AS mainMenu,m.link AS mainMenuLink,m.icon AS mainMenuIcon FROM tasks t'
     q+=', menu m WHERE t.menuId IN(SELECT menuId FROM menu WHERE menuId IN(SELECT menuId FROM tasks WHERE taskId IN(SELECT taskId FROM role_task ';
     q+='WHERE roleId IN(SELECT roleId FROM user_role WHERE userId=?)))) AND t.menuId = m.menuId';
     
@@ -44,7 +41,7 @@ module.exports.getAccessMenu = async (id)=>{
 
     var menus = Object.keys(menu_to_values).map((key)=>{
         let menu = result.find(i => i.mainMenu === key);
-        return {menu: key,link:menu.mainMenulink,icon:menu.mainMenuIcon, subMenu: menu_to_values[key]};
+        return {menu: key,link:menu.mainMenuLink,icon:menu.mainMenuIcon, subMenu: menu_to_values[key]};
     });
 
     return menus;

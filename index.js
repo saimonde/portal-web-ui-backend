@@ -14,6 +14,7 @@ const authenticate=require('./routes/authenticate');
 const dfspsRoutes=require('./routes/dfsps');
 const usersRoutes=require('./routes/users');
 const transactionsRoutes=require('./routes/transactions');
+const rolesRoutes=require('./routes/roles');
 
 // TODO:
 // - reject content types that are not application/json (this comes back to validation)
@@ -129,6 +130,7 @@ app.use(dfspsRoutes);
 app.use(usersRoutes);
 app.use(authenticate);
 app.use(transactionsRoutes);
+app.use(rolesRoutes);
 ///////////////////////////////////////////////////////////////////////////////
 // Post-route-handler processing
 ///////////////////////////////////////////////////////////////////////////////
