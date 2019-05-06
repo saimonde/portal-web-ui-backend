@@ -10,8 +10,8 @@ const config = require("../config/global")
 const db = new(require('../config/db'))(config.db);
 
 module.exports.getAllUsers = async () => {
-    let q = 'SELECT u.* FROM users u WHERE u.status=?';
-    let [users] = await db.connection.query(q, process.env.ACTIVE_USER_STATUS);
+    let q = `SELECT u.* FROM users u WHERE u.status='${process.env.ACTIVE_USER_STATUS}'`;
+    let [users] = await db.connection.query(q);
     return users;
 }
 

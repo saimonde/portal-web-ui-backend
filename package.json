@@ -4,7 +4,7 @@
   "description": "A backend service to support admin portal web ui. Essentially a thin wrapper around SQL queries and API calls.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "nodemon index.js",
     "test": "mocha --reporter list \"test/**/*.test.js\" --timeout=3000",
     "coverage": "istanbul cover _mocha -- -R test/**/*.js --timeout=3000",
     "showcoverage": "open coverage/lcov-report/index.html",
@@ -23,6 +23,7 @@
   "dependencies": {
     "@koa/cors": "^2.2.3",
     "ava": "^1.3.1",
+    "base-64": "^0.1.0",
     "dotenv": "^6.2.0",
     "eslint": "^5.15.3",
     "jest": "^24.7.1",
@@ -39,6 +40,6 @@
     "chai": "^4.2.0",
     "chai-http": "^4.2.1",
     "istanbul": "^0.4.5",
-    "mocha": "^6.1.2"
+    "mocha": "^6.1.4"
   }
 }
