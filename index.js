@@ -2,10 +2,28 @@ const { HTTPResponseError } = require('./requests.js');
 const app = new (require('koa'))();
 const koaBody = require('koa-body')();
 const cors = require('@koa/cors');
-const https = require('https');
+const https = require('http');
 const fetch = require('node-fetch');
 
 //Include middleware
+const session = require('koa-session');
+app.keys = ['tips portal secret'];
+ 
+const CONFIG = {
+  key: 'koa:sess', /** (string) cookie key (default is koa:sess) */
+  /** (number || 'session') maxAge in ms (default is 1 days) */
+  /** 'session' will result in a cookie that expires when session/browser is closed */
+  /** Warning: If a session cookie is stolen, this cookie will never expire */
+  maxAge: 86400000,
+  autoCommit: true, /** (boolean) automatically commit headers (default true) */
+  overwrite: true, /** (boolean) can overwrite or not (default true) */
+  httpOnly: true, /** (boolean) httpOnly or not (default true) */
+  signed: true, /** (boolean) signed or not (default true) */
+  rolling: false, /** (boolean) Force a session identifier cookie to be set on every response. The expiration is reset to the original maxAge, resetting the expiration countdown. (default is false) */
+  renew: false, /** (boolean) renew session when session is nearly expired, so we can always keep user logged in. (default is false)*/
+};
+ 
+app.use(session(CONFIG, app));
 // const middleware = require('./middleware');
 
 //Include routes
@@ -82,6 +100,7 @@ app.use(async (ctx, next) => {
 });
 
 app.use(async (ctx, next) => {
+    console.log(ctx.request);
     if (ctx.request.path === '/login' && ctx.request.method.toLowerCase() === 'post') {
         config.log('bypassing validation on login request');
         return await next();
@@ -90,30 +109,32 @@ app.use(async (ctx, next) => {
         config.log('request validation bypassed');
         return await next();
     }
-
+   // console.log(ctx.session.token);
     config.log('Cookie:', ctx.request.get('Cookie'));
-    const token = ctx.request.get('Cookie').split('=').splice(1).join('');
-
+    //const token = ctx.request.get('Cookie').split('=').splice(1).join('');
+    const token = ctx.session.token;
     config.log('validating request, token:', token);
     const opts = {
-        method: 'POST',
+        method: 'GET',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            //'Content-Type': 'application/x-www-form-urlencoded'
+            'Authorization' : token
         },
-        body: `token=${token}`,
+       // body: `token=${token}`,
         agent: selfSignedAgent
     };
 
     const validToken = await fetch(config.auth.validateEndpoint, opts).then(res => res.json());
     let isValid = validToken['active'] === 'true';
-
+    let isActive = isValid;
+    
     if (!isValid) {
         ctx.response.status = 401; // TODO: 403?
         return;
     }
 
-    ctx.response.body = { isValid };
-    ctx.response.status = isActive ? 200 : 404;
+    //ctx.response.body = { isValid };
+    ctx.response.status = isActive? 200 : 404;
     await next();
 });
 

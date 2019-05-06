@@ -96,6 +96,9 @@ router.post('/login', async (ctx, next) => {
     ctx.response.set({
         'Set-Cookie': `token=${oauth2Token['access_token']}; Secure; HttpOnly; SameSite=strict`
     });
+    ctx.session.token = oauth2Token['access_token'];
+    //console.log(oauth2Token['access_token']);
+    console.log(ctx.response.get('Cookie'));
     ctx.response.status = 200;
 
     await next();

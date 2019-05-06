@@ -7,12 +7,13 @@ const util = require('util');
 const {getDfsps}=require('../models/dfsps');
 
 router.get('/dfsps', async (ctx, next) => {
+    
     try{
         const _dfsps = await getDfsps();
         ctx.response.body = _dfsps;
         ctx.response.status = 200;
     }catch(err){
-        console.log("***********caught errors");
+        console.log("***********caught errors", err);
         ctx.response.status = 500;
     }
     await next();
