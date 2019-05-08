@@ -9,7 +9,7 @@ const {
     deleteUser
 } = require('../models/users');
 
-router.get('/users', async (ctx, next) => {
+router.get('/users', async (ctx, next) => { 
     const _users = await getAllUsers();
     ctx.response.body = _users.map(u => {
         const {

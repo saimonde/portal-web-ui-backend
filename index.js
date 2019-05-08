@@ -87,7 +87,7 @@ app.use(async (ctx, next) => {
     if (ctx.request.method === 'OPTIONS') {
         ctx.response.set({
             'Access-Control-Allow-Methods': 'GET,PUT,POST',
-            'Access-Control-Allow-Headers': 'content-type,accept'
+            'Access-Control-Allow-Headers': 'content-type,accept,token'
         });
         if (config.corsReflectOrigin) {
             ctx.response.set('Access-Control-Allow-Origin', ctx.request.headers['origin']);
@@ -100,7 +100,6 @@ app.use(async (ctx, next) => {
 });
 
 app.use(async (ctx, next) => {
-    console.log(ctx.request);
     if (ctx.request.path === '/login' && ctx.request.method.toLowerCase() === 'post') {
         config.log('bypassing validation on login request');
         return await next();
@@ -109,10 +108,10 @@ app.use(async (ctx, next) => {
         config.log('request validation bypassed');
         return await next();
     }
-   // console.log(ctx.session.token);
+    
     config.log('Cookie:', ctx.request.get('Cookie'));
     //const token = ctx.request.get('Cookie').split('=').splice(1).join('');
-    const token = ctx.session.token;
+    const token = ctx.request.headers.token;
     config.log('validating request, token:', token);
     const opts = {
         method: 'GET',
