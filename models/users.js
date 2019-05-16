@@ -1,3 +1,4 @@
+const Joi = require('joi');
 const md5 = require('md5');
 // Load .env file into process.env if it exists. This is convenient for running locally.
 require('dotenv').config();
@@ -13,6 +14,13 @@ module.exports.getAllUsers = async () => {
     let q = `SELECT u.* FROM users u WHERE u.status='${process.env.ACTIVE_USER_STATUS}'`;
     let [users] = await db.connection.query(q);
     return users;
+}
+
+module.exports.belongsToSameDfsp = async (user1, user2) => {
+    let q = 'SELECT u.belongToDfsp FROM users u WHERE userId IN(?,?)';
+    let [dfsps] = await db.connection.query(q, [user1, user2]);
+    let result = (dfsps[0].belongToDfsp === dfsps[1].belongToDfsp) ? true : false;
+    return result;
 }
 
 module.exports.registerUser = async (userName, firstName, middleName, lastName, belongToDfsp, email, createdBy) => {
@@ -85,3 +93,18 @@ module.exports.getUserById = async (id) => {
     } = user;
     return userWithoutPassword;
 }
+
+module.exports.updateUserSchema = Joi.object().keys({
+    firstName: Joi.string().min(1).required(),
+    middleName: Joi.string(),
+    lastName: Joi.string().min(1).required(),
+    email: Joi.string().email({
+        minDomainAtoms: 2
+    }),
+    status: Joi.string().min(6).max(8).required(),
+    updatedBy: Joi.number().integer(),
+    mobileNumber: Joi.string().max(10),
+    department: Joi.string(),
+    title: Joi.string(),
+    roles: Joi.string().required()
+});
